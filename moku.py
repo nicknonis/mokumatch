@@ -19,6 +19,11 @@ tokenFile.close()
 
 moku = discord.Client()
 
+'''
+-----------------------
+        BOT JOIN
+-----------------------
+'''
 @moku.event
 async def on_ready():
     # Display Login Status in Console
@@ -28,11 +33,24 @@ async def on_ready():
     print(moku.user.id)
     print('<---------------------------->')
     while True:
-        await moku.change_presence(game=discord.Game(name='type !count to count!'))
+        await moku.change_presence(game=discord.Game(name='Combot is my friend.'))
+        await asyncio.sleep(15)
+        await moku.change_presence(game=discord.Game(name='type ~help for assistance!'))
         await asyncio.sleep(10000)
         await moku.change_presence(game=discord.Game(name='git gud'))
         await asyncio.sleep(30)
 
+'''
+--------------------
+    Welcome Message
+--------------------
+'''        
+
+@moku.event        
+async def on_member_join(member):
+    server = member.server
+    moku_fmt = 'Welcome {0.mention} to {1.name}!'
+    await moku.send_message(server, moku_fmt.format(member, server))
         
 ''' 
     ----------------
@@ -42,36 +60,57 @@ async def on_ready():
 
 @moku.event
 async def on_message(message):
-    if message.content.startswith('!count'):
-        counter = 0
-        tmp = await moku.send_message(message.channel, 'Calculating messages...')
-        async for log in moku.logs_from(message.channel, limit=100):
-            if log.author == message.author:
-                counter += 1
-        await moku.edit_message(tmp, 'You have {} messages.'.format(counter))
+# prevent bot from replying to itself incase such a condition arises..
+    if message.author == moku.user:
+        await mokun_message_cleanup(message)
+        return
 
-    if message.content.startswith('!sleep'):
-        await asyncio.sleep(5)
-        await moku.send_message(message.channel, 'Done sleeping')
-    
-    if message.content.startswith('!delete'):
-        mgs = []
-        tmp = await moku.send_message(message.channel, 'Clearing messages...')
-        async for msg in moku.logs_from(message.channel, limit=100):
-            await moku.delete_message(msg)
-                
+    else:
+        if message.content.startswith('~hello'):
+            msg = 'Hello {0.author.mention}'.format(message)
+            await moku.send_message(message.channel, msg)
+              
+            
+            
+        if message.content.startswith('~count'):
+            counter = 0
+            tmp = await moku.send_message(message.channel, 'Calculating messages...')
+            async for log in moku.logs_from(message.channel, limit=100):
+                if log.author == message.author:
+                    counter += 1
+            await moku.edit_message(tmp, 'You have {} messages.'.format(counter))
+             
+            
+
+        if message.content.startswith('~sleep'):
+            await asyncio.sleep(15)
+            await moku.send_message(message.channel, 'Done sleeping')
+        #delete all messages 
+        if message.content.startswith('~delete'):
+            mgs = []
+            tmp = await moku.send_message(message.channel, 'Clearing messages...')
+            await asyncio.sleep(5)
+            async for mgs in moku.logs_from(message.channel, limit=100):
+                await moku.delete_message(mgs)
+        
+        
+        
+            
 ''' 
     -------------------
         Auto Clean Up
     -------------------	
 '''
-        
-async def moku_message_cleanup(message):
+
+#delete moku messages.        
+async def mokun_message_cleanup(message):
     if message.channel.is_private:
         return
     if message.channel.permissions_for(message.server.me).manage_messages:
-        await asyncio.sleep(120)
+        await asyncio.sleep(60)
         await moku.delete_message(message)
+    else:
+        print("Moku lacks the permissions required to delete user messages.")
 
 
 
