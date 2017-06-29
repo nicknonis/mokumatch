@@ -9,10 +9,12 @@ Bot at this stage is only the example bot from discord.py [https://github.com/Ra
 </ul>
 
 #Functions 
+All commands have a prefix of "~"
 <ul>
-<li>!count - count the number of messages posted(up to 100 messages)</li>
-<li>!delete - delete (100 messages)</li>
-<li>!sleep - send moku to sleep</li> 
+<li>~count - count the number of messages posted(up to 100 messages)</li>
+<li>~delete - delete (100 messages will make it admin exclusive later on perhaps?)</li>
+<li>~sleep - send moku to sleep for a few seconds</li> 
+<li>~hello - get a greeting from moku</li> 
 </ul>
 
 WIP...
