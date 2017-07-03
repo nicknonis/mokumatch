@@ -1,7 +1,7 @@
 #for now this bot does nothing and is infact just the example bot.
 import discord
 import asyncio
-import random #can remove just using for randomizer game
+import random 
 import logging
 from discord.ext import commands
 
@@ -58,7 +58,7 @@ async def on_ready():
 @bot.event        
 async def on_member_join(member):
     server = member.server
-    bot_fmt = 'Welcome {0.mention} to {1.name}!'
+    bot_fmt = 'Welcome {0.mention} to {1.name}! I am Moku, type ~help to get help.'
     await bot.send_message(server, bot_fmt.format(member, server))
 
 
@@ -112,88 +112,109 @@ async def on_message(message):
         # check if sent by self
         if message.author.id == bot.user.id:
             await botn_message_cleanup(message)
-        return
+            return
         
-    if message.content.startswith(prefix): 
-        
-        fntMsg = message.content
-        fntMsg = fntMsg.replace(prefix, "")
-        
-       
-        
-        if fntMsg == 'count':
-            counter = 0
-            tmp = await bot.send_message(message.channel, 'Calculating messages...')
-            async for log in bot.logs_from(message.channel, limit=100):
-                if log.author == message.author:
-                    counter += 1
-            await bot.edit_message(tmp, 'You have {} messages.'.format(counter))        
-        if fntMsg == 'sleep':
-            await asyncio.sleep(15)
-            await bot.send_message(message.channel, 'Done sleeping')
-        
-        #delete all messages 
-        if fntMsg == 'delete': #locking to allow only sudo permission users to do stuff
-            mgs = []
-            tmp = await bot.send_message(message.channel, 'Clearing messages...')
-            await asyncio.sleep(5)
-            async for mgs in bot.logs_from(message.channel, limit=100):
-                await bot.delete_message(mgs)
-        if fntMsg == 'hello' :
-            msg = 'Hello {0.author.mention}'.format(message)
-            await bot.send_message(message.channel, msg)   
-        
-        
-        
-        ''' ---------------------------------
-                    REGION/ROLE ASSIGNMENT 
-            ---------------------------------
-        '''
-            #[will probably use this to help in matchmaking later on]
-            #can be swapped and used as role manager instead.
-        if message.content.startswith('~region'):
-            region = message.content[8:].upper()
-            role_exists = False
-            user_has_role = False
-            for role in message.server.roles:
-                if role.name == region:
-                    role_exists = True
-                    actual_role = role
-                    break
-            if not role_exists:
-                await bot.send_message(message.channel, ("Region does not exist.\nAvailable regions are {0}.".format(region_list)).strip('[]'))
-                return
-            if role_exists:
-                # Replace the region
-                for role in message.author.roles:  
-                    if role.name in region_list:  
-                        user_has_role = True
-                        try:
-                            await bot.remove_roles(message.author, role)
-                            await bot.add_roles(message.author, actual_role)
-                            await bot.send_message(message.channel, "Region changed to {0}.".format(region))
-                            return
-                        except discord.Forbidden:
-                            await bot.send_message(message.channel, "bot lacks the permissions to do that...")
-                            return    
-                if not user_has_role:  # user doesnt have the role yet
-                    try:
-                        await bot.add_roles(message.author, actual_role)
-                        await bot.send_message(message.channel, "Region set to {0}.".format(region))
-                    except discord.Forbidden:
-                        await bot.send_message(message.channel, "bot lacks the permissions to do that...")
-        elif message.content.startswith('~rmregion'):  #command to remove a role (need to tie this to mod only..)
-            for role in message.author.roles:  # Replace existing region
-                if role.name in region_list:  
-                    try:
-                        await bot.remove_roles(message.author, role)
-                        await bot.send_message(message.channel, "Role removed successfully.")
-                        return
-                    except discord.Forbidden:
-                        await bot.send_message(message.channel, "bot lacks the permissions to do that...")
-                        return    
 
-    await bot.process_commands(message)            
+    if message.content.startswith(prefix): 
+        #for quick and simple functions with dynamic prefix. makes it easier to maintain.
+        fntMsg = message.content                    
+        fntMsg = fntMsg.replace(prefix, "") 
+          
+            
+
+    await bot.process_commands(message) 
+
+@bot.command(pass_context=True)    
+@commands.has_permissions(administrator=True)
+async def sleep(ctx):
+    """Puts moku to sleep for 15 seconds. [Admin Only]"""
+    await asyncio.sleep(15)
+    await bot.send_message(ctx.message.channel, 'Done sleeping')
+    
+@bot.command(pass_context=True)
+@commands.has_permissions(administrator=True)
+async def purge(ctx):
+    """Delete last 100 messages[Admin Only]"""
+    mgs = []
+    tmp = await bot.send_message(ctx.message.channel, 'Clearing messages...')
+    await asyncio.sleep(5)
+    async for mgs in bot.logs_from(ctx.message.channel, limit=100):
+        await bot.delete_message(mgs)       
+    
+    
+@bot.command(pass_context=True)
+async def hello(ctx):
+    """Moku will greet you."""
+    msg = 'Hello {0.author.mention}'.format(ctx.message)
+    await bot.send_message(ctx.message.channel, msg)        
+    
+@bot.command(pass_context=True)
+async def count(ctx):
+    """Counts messages sent."""
+    counter = 0
+    tmp = await bot.send_message(ctx.message.channel,'Calculating messages...')
+    async for log in bot.logs_from(ctx.message.channel, limit=100):
+        if log.author == ctx.message.author:
+            counter += 1
+        await bot.edit_message(tmp, 'You have {} messages.'.format(counter)) 
+
+''' 
+    ---------------------------------
+        REGION/ROLE ASSIGNMENT 
+     ---------------------------------
+'''
+            
+            #can be swapped and used as role manager instead.
+            
+@bot.command(pass_context=True)       
+async def region(ctx):  
+    """Assigns a region to requester. [ex: ~region NA]""" 
+    member = ctx.message.author
+    region = ctx.message.content[8:].upper()
+    role_exists = False
+    user_has_role = False
+    for role in ctx.message.server.roles:
+        if role.name == region:
+            role_exists = True
+            actual_role = role
+            break
+    if not role_exists:
+            await bot.send_message(ctx.message.channel, ("Region does not exist.\nAvailable regions are {0}.".format(region_list)).strip('[]'))
+            return
+    if role_exists:
+        # Replace the region
+        for role in member.roles:  
+            if role.name in region_list:  
+                user_has_role = True
+                try:
+                    await bot.remove_roles(ctx.message.author, role)
+                    await bot.add_roles(member, actual_role)
+                    await bot.send_message(ctx.message.channel, "Region changed for user to {0}.".format(region))
+                    return
+                except discord.Forbidden:
+                    await bot.send_message(ctx.message.channel, "bot lacks the permissions to do that...")
+                    return    
+        if not user_has_role:  # user doesnt have the role yet
+            try:
+                await bot.add_roles(member, actual_role)
+                await bot.send_message(ctx.message.channel, "Region for user set to {0}.".format(region))
+            except discord.Forbidden:
+                await bot.send_message(ctx.message.channel, "bot lacks the permissions to do that...")
+                            
+@bot.command(pass_context=True)       
+async def rmregion(ctx):  
+    """Removes region from requester. [ex: ~region NA]""" 
+    member = ctx.message.author    
+    for role in member.roles:  # Replace existing region
+        if role.name in region_list:  
+            try:
+                await bot.remove_roles(member, role)
+                await bot.send_message(ctx.message.channel, "Region removed from user successfully.")
+                return
+            except discord.Forbidden:
+                await bot.send_message(ctx.message.channel, "bot lacks the permissions to do that...")
+                return    
+      
       
 
 
@@ -214,5 +235,6 @@ async def botn_message_cleanup(message):
         print("bot lacks the permissions required to delete user messages.")
 
 
-
+        
+        
 bot.run(token)

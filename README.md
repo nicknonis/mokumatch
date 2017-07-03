@@ -1,20 +1,27 @@
 #mokumatch
 
-Bot at this stage is only the example bot from discord.py [https://github.com/Rapptz/discord.py] with a little extra.
+This bot uses discord.py  available at [https://github.com/Rapptz/discord.py]
 
 #To Do:
 <ul>
-<li>tekken match making</li> 
-<li>lobby bot features</li>
+<li>match making functionality</li> 
+<li>admin utils</li>
+<li>more lobby bot features</li>
 </ul>
 
-#Functions 
-All commands have a prefix of "~"
+
+Moku the lobby and matchmaking bot
+
+Commands:
 <ul>
-<li>~count - count the number of messages posted(up to 100 messages)</li>
-<li>~delete - delete (100 messages will make it admin exclusive later on perhaps?)</li>
-<li>~sleep - send moku to sleep for a few seconds</li> 
-<li>~hello - get a greeting from moku</li> 
+<li>   help     Shows this message. </li> 
+<li>   sleep    Puts moku to sleep for 15 seconds. [Admin Only]</li> 
+<li>   purge    Delete last 100 messages[Admin Only]</li> 
+<li>   hello    Moku will greet you.</li> 
+<li>   count    Counts messages sent.</li> 
+<li>   region   Assigns a region to requester. [ex: ~region NA]</li> 
+<li>   rmregion Removes region from requester. [ex: ~region NA]</li> 
 </ul>
-
+Type ~help command for more info on a command.
+You can also type ~help category for more info on a category.
 WIP...
