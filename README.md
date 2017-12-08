@@ -10,7 +10,6 @@ This bot uses discord.py  available at [https://github.com/Rapptz/discord.py]
 </ul>
 
 
-Moku the lobby and matchmaking bot
 
 Commands:
 <ul>
@@ -24,4 +23,3 @@ Commands:
 </ul>
 Type ~help command for more info on a command.
 You can also type ~help category for more info on a category.
-WIP...
